@@ -300,10 +300,6 @@ SOFTWARE.
 BCA Final Year Student  
 Passionate about AI/ML and Web Development
 
-### Connect
-- 📧 Email: [abhay@example.com](mailto:abhay@example.com)
-- 🐙 GitHub: [@ak-0283](https://github.com/ak-0283)
-- 💼 LinkedIn: [Your LinkedIn Profile]
 
 ## 🙏 Acknowledgments
 
@@ -312,32 +308,6 @@ Passionate about AI/ML and Web Development
 - **scikit-learn** - ML tools and algorithms
 - **VS Code Copilot** - Development assistance
 
-## 📞 Support
-
-### FAQ
-
-**Q: Can I use this for commercial purposes?**  
-A: Yes, the MIT license allows commercial use.
-
-**Q: How do I retrain with my own data?**  
-A: Replace CSV files in `data/` and run `python train_model.py`.
-
-**Q: Is the contact form functional?**  
-A: Yes, it validates and shows flash messages. Add email/database logic as needed.
-
-**Q: Can I deploy this to production?**  
-A: Yes! Consider using Gunicorn + Nginx on AWS/Heroku/DigitalOcean.
-
-### Deployment Tips
-```bash
-# Install Gunicorn
-pip install gunicorn
-
-# Run with Gunicorn
-gunicorn -w 4 -b 0.0.0.0:8000 app:app
-```
-
-For detailed deployment, see Flask documentation: https://flask.palletsprojects.com/en/latest/deploying/
 
 ## 🔮 Roadmap
 
