@@ -1,27 +1,25 @@
 from flask import Flask, render_template, request, send_file, flash, redirect, url_for
 import numpy as np
 import pickle
+from agent import AttendanceAgent
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-change-in-production'  # Required for flash messages
+app.secret_key = 'your-secret-key-change-in-production'
 
+# ----------------------------------------
+# LOAD MODEL & ENCODER FIRST
+# ----------------------------------------
 model = pickle.load(open("model/attendance_model.pkl", "rb"))
 encoder = pickle.load(open("model/encoder.pkl", "rb"))
 
-def predict_risk(attendance, marks, assignments, classes_missed):
-    data = np.array([[attendance, marks, assignments, classes_missed]])
-    result = model.predict(data)[0]
-    risk = encoder.inverse_transform([result])[0]
+# ----------------------------------------
+# NOW CREATE AI AGENT (CORRECT PLACE)
+# ----------------------------------------
+agent = AttendanceAgent(model, encoder)
 
-    if risk == "Safe":
-        suggestion = "Good performance. Maintain consistency."
-    elif risk == "At Risk":
-        suggestion = "Improve attendance and assignments."
-    else:
-        suggestion = "Immediate intervention required."
-
-    return risk, suggestion
-
+# ----------------------------------------
+# ROUTES
+# ----------------------------------------
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -44,15 +42,37 @@ def results():
 
 @app.route("/predict", methods=["GET", "POST"])
 def predict():
-    prediction = suggestion = None
+    prediction = None
+    suggestion = None
+    action = None
+
     if request.method == "POST":
-        prediction, suggestion = predict_risk(
-            float(request.form["attendance"]),
-            float(request.form["marks"]),
-            float(request.form["assignments"]),
-            float(request.form["classes_missed"])
-        )
-    return render_template("predict.html", prediction=prediction, suggestion=suggestion)
+        print("POST request received")  # DEBUG LINE
+
+        attendance = float(request.form["attendance"])
+        marks = float(request.form["marks"])
+        assignments = float(request.form["assignments"])
+        classes_missed = float(request.form["classes_missed"])
+
+        input_data = np.array([[attendance, marks, assignments, classes_missed]])
+
+        risk = agent.perceive(input_data)
+        decision = agent.decide(risk)
+        response = agent.act(decision)
+
+        prediction = risk
+        suggestion = response["message"]
+        action = response["action"]
+
+        print("Prediction:", prediction)  # DEBUG LINE
+
+    return render_template(
+        "predict.html",
+        prediction=prediction,
+        suggestion=suggestion,
+        action=action
+    )
+
 
 @app.route("/download-report")
 def download_report():
@@ -64,17 +84,19 @@ def contact():
         name = request.form.get("name", "").strip()
         email = request.form.get("email", "").strip()
         message = request.form.get("message", "").strip()
-        
+
         if not name or not email or not message:
             flash("All fields are required.", "error")
         elif "@" not in email:
             flash("Please enter a valid email address.", "error")
         else:
-            # Here you could save to database, send email, etc.
-            # For now, just acknowledge receipt
-            flash(f"Thank you, {name}! Your message has been received. We'll respond to {email} soon.", "success")
+            flash(
+                f"Thank you, {name}! Your message has been received. "
+                f"We'll respond to {email} soon.",
+                "success"
+            )
             return redirect(url_for("contact"))
-    
+
     return render_template("contact.html")
 
 if __name__ == "__main__":

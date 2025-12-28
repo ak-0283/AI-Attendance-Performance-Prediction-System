@@ -1,16 +1,128 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Predict Student Risk</h2>
-<form method="post">
-<input name="attendance" placeholder="Attendance %" required>
-<input name="marks" placeholder="Marks %" required>
-<input name="assignments" placeholder="Assignments %" required>
-<input name="classes_missed" placeholder="Classes Missed" required>
-<button>Predict</button>
-</form>
+
+<div class="predict-hero">
+  <h1>🎯 AI-Powered Risk Prediction</h1>
+  <p>Enter student performance data to get instant risk assessment with AI agent recommendations</p>
+</div>
+
+<section class="predict-form-section">
+  <h3>Student Performance Input</h3>
+  <p>Provide accurate data for precise predictions. All fields are required.</p>
+
+  <form action="{{ url_for('predict') }}" method="POST" class="predict-form">
+    <div class="form-grid">
+      <div class="input-group">
+        <label for="attendance">📊 Attendance Percentage</label>
+        <input type="number" id="attendance" name="attendance" placeholder="0-100" min="0" max="100" step="0.1" required>
+        <small>Student's overall attendance rate</small>
+      </div>
+
+      <div class="input-group">
+        <label for="marks">📝 Marks Obtained</label>
+        <input type="number" id="marks" name="marks" placeholder="0-100" min="0" max="100" step="0.1" required>
+        <small>Current academic performance score</small>
+      </div>
+
+      <div class="input-group">
+        <label for="assignments">✅ Assignments Completed</label>
+        <input type="number" id="assignments" name="assignments" placeholder="0-20" min="0" max="20" step="1" required>
+        <small>Number of assignments submitted</small>
+      </div>
+
+      <div class="input-group">
+        <label for="classes_missed">❌ Classes Missed</label>
+        <input type="number" id="classes_missed" name="classes_missed" placeholder="0-50" min="0" max="50" step="1" required>
+        <small>Total classes absent</small>
+      </div>
+    </div>
+
+    <button type="submit" class="predict-btn">
+      <span class="btn-icon">🤖</span>
+      Analyze with AI Agent
+    </button>
+  </form>
+</section>
 
 {% if prediction %}
-<h3>{{ prediction }}</h3>
-<p>{{ suggestion }}</p>
+<section class="result-section">
+  <div class="result-card {{ prediction|lower|replace(' ', '-') }}">
+    <div class="result-header">
+      <span class="result-icon">
+        {% if prediction == "Safe" %}✅
+        {% elif prediction == "At Risk" %}⚠️
+        {% else %}🚨{% endif %}
+      </span>
+      <div>
+        <h3>Risk Assessment Complete</h3>
+        <p class="result-timestamp">Analyzed just now</p>
+      </div>
+    </div>
+
+    <div class="result-body">
+      <div class="risk-badge-large">
+        <span class="badge {{ prediction|lower|replace(' ', '-') }}">{{ prediction }}</span>
+      </div>
+
+      <div class="agent-response">
+        <h4>🤖 AI Agent Recommendation</h4>
+        <div class="agent-action">
+          <strong>Action Plan:</strong> {{ action }}
+        </div>
+        <div class="agent-suggestion">
+          <p>{{ suggestion }}</p>
+        </div>
+      </div>
+
+      <div class="next-steps">
+        <h4>📋 Next Steps</h4>
+        <ul>
+          {% if prediction == "Safe" %}
+          <li>Continue maintaining current study habits</li>
+          <li>Schedule quarterly check-ins</li>
+          <li>Consider peer mentoring opportunities</li>
+          {% elif prediction == "At Risk" %}
+          <li>Schedule weekly tutoring sessions</li>
+          <li>Improve attendance consistency</li>
+          <li>Set up progress monitoring system</li>
+          {% else %}
+          <li>Immediate counselor intervention required</li>
+          <li>Contact parents/guardians urgently</li>
+          <li>Create intensive support plan</li>
+          <li>Daily attendance tracking</li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="result-actions">
+      <a href="{{ url_for('predict') }}" class="btn-secondary">New Prediction</a>
+      <a href="{{ url_for('results') }}" class="cta">View Model Details</a>
+    </div>
+  </div>
+</section>
 {% endif %}
+
+<section>
+  <h3>💡 Prediction Guidelines</h3>
+  <div class="grid">
+    <div class="card">
+      <h4>Attendance Rate</h4>
+      <p>Enter percentage of classes attended. Higher attendance correlates with better performance.</p>
+    </div>
+    <div class="card">
+      <h4>Academic Marks</h4>
+      <p>Current average score across subjects. Key indicator of academic standing.</p>
+    </div>
+    <div class="card">
+      <h4>Assignment Completion</h4>
+      <p>Number of assignments submitted on time. Shows engagement level.</p>
+    </div>
+    <div class="card">
+      <h4>Absences</h4>
+      <p>Total classes missed. Critical factor in risk assessment.</p>
+    </div>
+  </div>
+</section>
+
 {% endblock %}
